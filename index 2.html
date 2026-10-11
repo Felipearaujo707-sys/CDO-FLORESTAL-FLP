@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173b2b"><meta name="description" content="Controle Diário Operacional para operações florestais de eucalipto">
+<link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css">
+<title>CDO Florestal</title>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><div class="logo">🌳</div><div><strong>CDO Florestal</strong><small>Controle Diário Operacional</small></div></div>
+  <div class="top-right"><span id="netStatus" class="pill">Verificando conexão…</span><button id="exportBtn" class="btn btn-light">Exportar dados</button></div>
+</header>
+<main>
+  <section class="hero"><div><span class="eyebrow">GESTÃO DE CAMPO</span><h1>Operação florestal, sob controle.</h1><p>Registre o dia, acompanhe a produção e prepare o relatório da frente de serviço.</p></div><div class="hero-mark">CDO</div></section>
+  <section class="metrics">
+    <article class="metric"><span>Registros neste dispositivo</span><b id="countMetric">0</b></article>
+    <article class="metric"><span>Área registrada</span><b id="areaMetric">0 ha</b></article>
+    <article class="metric"><span>Equipe informada*</span><b id="peopleMetric">0</b></article>
+  </section>
+  <nav class="tabs" aria-label="Módulos">
+    <button class="tab active" data-tab="registro">＋ Novo CDO</button><button class="tab" data-tab="historico">☷ Histórico</button><button class="tab" data-tab="estoque">▣ Estoque</button><button class="tab" data-tab="relatorio">▤ Relatórios</button><button class="tab" data-tab="admin">⚙ Administração</button>
+  </nav>
+  <section id="registro" class="panel">
+    <div class="panel-head"><div><h2>Registrar operação</h2><p>Os campos marcados com * são obrigatórios.</p></div><span class="pill local">Salvo localmente</span></div>
+    <form id="cdoForm">
+      <div class="form-grid">
+        <label>Data *<input type="date" name="date" id="date" required></label>
+        <label>Fazenda / projeto *<input name="farm" placeholder="Nome da fazenda ou projeto" required></label>
+        <label>Talhão *<input name="talhao" placeholder="Ex.: T-042" required></label>
+        <label>Frente de serviço<input name="front" placeholder="Ex.: Frente 01"></label>
+        <label class="span2">Atividade *
+          <select name="activity" required>
+            <option>Capina química</option><option>Controle de formigas</option><option>Roçada manual</option><option>Plantio</option><option>Replantio</option><option>Adubação</option>
+          </select>
+        </label>
+        <label>Encarregado responsável *<input name="leader" placeholder="Nome do responsável" required></label>
+        <label>Supervisor<input name="supervisor" placeholder="Nome do supervisor"></label>
+        <label>Funcionários presentes *<input name="people" type="number" min="0" step="1" value="0" required></label>
+        <label>Horas por pessoa<input name="hours" type="number" min="0" step="0.25" placeholder="Ex.: 8"></label>
+        <label>Área realizada (ha) *<input name="area" type="number" min="0" step="0.01" placeholder="Ex.: 12,5" required></label>
+        <label>Meta diária (ha)<input name="goal" type="number" min="0" step="0.01" placeholder="Ex.: 15"></label>
+        <label>Quantidade produzida<input name="production" type="number" min="0" step="0.01" placeholder="Quantidade"></label>
+        <label>Unidade da produção<select name="unit"><option>ha</option><option>mudas</option><option>formigueiros</option><option>sacos</option><option>unidades</option><option>outros</option></select></label>
+        <label>Clima<select name="weather"><option>Ensolarado</option><option>Nublado</option><option>Chuva</option><option>Parada por condição climática</option></select></label>
+        <label>GPS / referência opcional<input name="location" placeholder="Coordenada ou referência do local"></label>
+        <div class="subsection span2"><h3>Insumos e defensivos (se aplicável)</h3><p>Registre o produto exatamente como consta no rótulo. A dose deve ser validada na bula vigente e pelo responsável técnico.</p></div>
+        <label>Produto comercial<input name="product" placeholder="Nome comercial exato"></label>
+        <label>Lote do produto<input name="batch" placeholder="Lote da embalagem"></label>
+        <label>Dose validada e unidade<input name="dose" placeholder="Conforme bula / receituário"></label>
+        <label>Quantidade utilizada<input name="used" placeholder="Quantidade + unidade"></label>
+        <label class="span2">Ocorrências / observações<textarea name="notes" rows="3" placeholder="Paradas, falhas, retrabalho, segurança, clima…"></textarea></label>
+      </div>
+      <label class="check"><input type="checkbox" name="confirmed" required> Confirmo que conferi os dados do registro.</label>
+      <div class="actions"><button class="btn btn-primary" type="submit">Salvar CDO neste dispositivo</button><button class="btn btn-outline" type="reset">Limpar formulário</button></div>
+      <p id="formMessage" class="message" role="status"></p>
+    </form>
+  </section>
+  <section id="historico" class="panel hidden">
+    <div class="panel-head"><div><h2>Histórico operacional</h2><p>Registros armazenados neste navegador/dispositivo.</p></div></div>
+    <div class="filters"><input id="search" placeholder="Buscar fazenda, talhão ou encarregado"><select id="activityFilter"><option value="">Todas as atividades</option><option>Capina química</option><option>Controle de formigas</option><option>Roçada manual</option><option>Plantio</option><option>Replantio</option><option>Adubação</option></select></div>
+    <div id="recordsList" class="records"></div>
+  </section>
+  <section id="estoque" class="panel hidden">
+    <div class="panel-head"><div><h2>Estoque de insumos</h2><p>Controle inicial de entradas e saldo local demonstrativo.</p></div></div>
+    <form id="stockForm" class="stock-form"><label>Produto / insumo<input name="name" required placeholder="Nome exato"></label><label>Quantidade recebida<input name="qty" type="number" min="0.01" step="0.01" required></label><label>Unidade<select name="unit"><option>L</option><option>kg</option><option>un</option><option>sacos</option></select></label><label>Lote<input name="batch" placeholder="Lote"></label><button class="btn btn-primary" type="submit">Registrar entrada</button></form>
+    <div id="stockList" class="records"></div>
+    <p class="notice">Nesta versão, o estoque é local. Baixas automáticas por consumo, trilha de auditoria e saldo compartilhado exigem backend e regras transacionais.</p>
+  </section>
+  <section id="relatorio" class="panel hidden">
+    <div class="panel-head"><div><h2>Relatório diário</h2><p>Filtre por data e prepare uma versão para imprimir ou salvar em PDF.</p></div></div>
+    <div class="filters"><label>Data do relatório<input type="date" id="reportDate"></label><button id="previewReport" class="btn btn-primary">Montar relatório</button></div>
+    <div id="reportPreview" class="report-preview"><p class="muted">Escolha uma data e clique em “Montar relatório”.</p></div>
+    <div class="actions"><button id="printReport" class="btn btn-primary">Imprimir / Salvar como PDF</button><button id="shareReport" class="btn btn-outline">Compartilhar resumo</button></div>
+    <p class="notice">“Imprimir / Salvar como PDF” abre a impressão do navegador; escolha “Salvar como PDF” quando disponível. “Compartilhar resumo” usa os recursos de compartilhamento do aparelho, se compatíveis. Não envia automaticamente.</p>
+  </section>
+  <section id="admin" class="panel hidden">
+    <div class="panel-head"><div><h2>Administração e arquitetura</h2><p>Configuração de referência para implantação corporativa.</p></div></div>
+    <div class="notice warning"><b>Importante:</b> esta demonstração não tem login real, permissões seguras nem sincronização entre usuários. Não use dados pessoais sensíveis ou informações operacionais confidenciais em produção.</div>
+    <h3>Perfis planejados</h3><div class="role-grid"><article><b>Encarregado</b><p>Cria e edita CDOs da sua frente enquanto não aprovados.</p></article><article><b>Supervisor</b><p>Revisa, devolve para correção e aprova registros.</p></article><article><b>Estoque / almoxarifado</b><p>Registra entradas, saídas, lotes e inventários.</p></article><article><b>Gerência / administrador</b><p>Visualiza indicadores, gerencia usuários e configura projetos.</p></article></div>
+    <h3>Serviços externos necessários</h3><ul class="service-list"><li><b>Hospedagem HTTPS para PWA:</b> Cloudflare Pages, Vercel ou serviço corporativo equivalente.</li><li><b>Backend gerenciado:</b> Supabase (PostgreSQL, autenticação e API) ou Firebase. Escolher um único backend na primeira versão.</li><li><b>Sincronização:</b> fila local, identificadores únicos, controle de versões e resolução de conflitos.</li><li><b>Arquivos:</b> armazenamento de PDFs e anexos, com regras de acesso.</li><li><b>WhatsApp:</b> compartilhamento manual pelo sistema do aparelho; envio automatizado em escala exigiria integração oficial WhatsApp Business Platform e configuração da empresa.</li><li><b>Operação:</b> domínio da empresa, política de privacidade, backups, retenção e monitoramento.</li></ul>
+    <h3>Dados</h3><p>Use dados fictícios nesta demonstração. Para produção, definir empresa, unidades, fazendas, talhões, usuários, equipes, operações, insumos, movimentações de estoque, relatórios e trilha de auditoria.</p>
+  </section>
+  <footer><span>CDO Florestal · Protótipo PWA</span><span>Dados locais neste dispositivo</span></footer>
+</main>
+<div id="toast" class="toast" aria-live="polite"></div>
+<script src="app.js"></script>
+</body></html>

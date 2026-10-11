@@ -1,0 +1,11 @@
+{
+  "name": "CDO Florestal",
+  "short_name": "CDO Florestal",
+  "description": "Controle Diário Operacional Florestal",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7f4",
+  "theme_color": "#173b2b",
+  "icons": []
+}
